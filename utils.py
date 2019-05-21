@@ -29,7 +29,10 @@ def sample_track(root_node):
     tracktype_node.attrib["val"] = tracktype
 
 def set_render_mode(root_node, render=True):
-    node = _find_by_name(root_node, "Quick Race")
+    try:
+        node = _find_by_name(root_node, "Quick Race")
+    except:
+        node = _find_by_name(root_node, "Practice")
     subnode = _find_by_name(node, "display mode")
     if render:
         subnode.attrib["val"] = "normal"

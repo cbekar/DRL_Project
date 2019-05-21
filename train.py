@@ -12,6 +12,7 @@ from gym_torcs import TorcsEnv
 
 
 def train(device):
+    #env = TorcsEnv(path="/usr/local/share/games/torcs/config/raceman/quickrace28.xml")
     env = TorcsEnv(path="/usr/local/share/games/torcs/config/raceman/quickrace.xml")
     insize = env.observation_space.shape[0]
     outsize = env.action_space.shape[0]
@@ -58,7 +59,8 @@ def train(device):
         sigma = (hyprm.start_sigma-hyprm.end_sigma)*(max(0, 1-eps/hyprm.episodes)) + hyprm.end_sigma
         randomprocess = OrnsteinUhlenbeckProcess(hyprm.theta, sigma, outsize)
         for i in range(hyprm.maxlength):
-            torch_state = agent._totorch(state, torch.float32).view(1, -1)
+            torch_state = agent._totorch(state, torch.
+            float32).view(1, -1)
             action, value = agent.act(torch_state)
             action = train_indicator * randomprocess.noise() + action.to("cpu").squeeze()
             action.clamp_(-1, 1)

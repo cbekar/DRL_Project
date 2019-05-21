@@ -236,7 +236,7 @@ class TorcsEnv:
        #print("relaunch torcs")
         os.system('pkill torcs')
         time.sleep(0.5)
-        os.system('torcs -nofuel -nodamage -nolaptime -p 3101 &')
+        os.system('torcs -T -nofuel -nodamage -nolaptime -p 3101 &')
         time.sleep(0.5)
         os.system('sh autostart.sh')
         time.sleep(0.5)
