@@ -73,7 +73,7 @@ def train(device):
                 value_loss, policy_loss = agent.update(hyprm.gamma, hyprm.batchsize, hyprm.tau, hyprm.lrvalue, hyprm.lrpolicy, hyprm.clipgrad)
                 if random.uniform(0, 1) < 0.01:
                     datalog["td error"].append(value_loss)
-                    datalog["avearge policy value"].append(policy_loss)
+                    datalog["average policy value"].append(policy_loss)
 
             if done:
                 break
@@ -82,7 +82,7 @@ def train(device):
         datalog["total reward"].append(epsisode_reward)
 
         avearage_reward = torch.mean(torch.tensor(datalog["total reward"][-20:])).item()
-        print("\r Processs percentage: {:2.1f}%, Average reward: {:2.3f}".format(eps/hyprm.episodes*100, avearage_reward), end="", flush=True)
+        print("\r Process percentage: {:2.1f}%, Average reward: {:2.3f}".format(eps/hyprm.episodes*100, avearage_reward), end="", flush=True)
 
         if np.mod(eps, 100) == 0:
             if (train_indicator):

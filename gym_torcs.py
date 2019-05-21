@@ -148,10 +148,9 @@ class TorcsEnv:
                     info["no progress"] = True
                     # client.R.d['meta'] = True
         
-        if (abs(track.any()) > 1 or abs(obs['trackPos']) > 1):  # Episode is terminated if the car is out of track
-            reward = -50
-            episode_terminate = True
-            client.R.d['meta'] = True
+        if (abs(track.any()) > 1 or abs(obs['trackPos']) > 1):  # If the car is out of track
+            reward = -1
+            #client.R.d['meta'] = True
 
         if np.cos(obs['angle']) < 0:  # Episode is terminated if the agent runs backward
             if self.time_step >  20 :
