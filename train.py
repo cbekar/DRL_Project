@@ -23,7 +23,7 @@ def train(device):
                 "lrpolicy": 0.001,
                 "gamma": 0.985,
                 "episodes": 30000,
-                "buffersize": 2**13,#300000,
+                "buffersize": 2**16,#300000,
                 "tau": 0.01,
                 "batchsize": 32,
                 "start_sigma": 0.9,
@@ -93,5 +93,5 @@ def train(device):
                 torch.save(policynet.state_dict(), 'policymodel.pth')
 
 if __name__ == "__main__":
-    train("cpu")
+    train("cuda")
     
