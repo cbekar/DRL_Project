@@ -9,7 +9,7 @@ from agent.simple_network import SimpleNet
 from agent.simple_network import DoubleInputNet
 from agent.random_process import OrnsteinUhlenbeckProcess
 from gym_torcs import TorcsEnv
-from agent.PriotrizedReplayBuffer import PrioirtyBuffer
+from agent.PriotrizedReplayBuffer import PriorityBuffer
 
 
 def train(device):
@@ -23,7 +23,7 @@ def train(device):
                 "lrpolicy": 0.001,
                 "gamma": 0.985,
                 "episodes": 30000,
-                "buffersize": 2**16,#300000,
+                "buffersize": 2**18,#300000,
                 "tau": 0.01,
                 "batchsize": 32,
                 "start_sigma": 0.9,
@@ -40,7 +40,7 @@ def train(device):
     valuenet = DoubleInputNet(insize, outsize, 1)
     policynet = SimpleNet(insize, outsize, activation=torch.nn.functional.tanh)
     
-    agent = Ddpg(valuenet, policynet, buffer=PrioirtyBuffer(hyprm.buffersize))#buffersize=hyprm.buffersize)
+    agent = Ddpg(valuenet, policynet, buffer=PriorityBuffer(hyprm.buffersize))#buffersize=hyprm.buffersize)
     agent.to(device)
     
     #load model

@@ -48,7 +48,7 @@ class BaseBuffer():
 
 
 
-class PrioirtyBuffer(BaseBuffer):
+class PriorityBuffer(BaseBuffer):
     """ Replay buffer that sample tranisitons
     according to their prioirties. Prioirty
     value is most commonly td error.
