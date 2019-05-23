@@ -9,6 +9,7 @@ from agent.simple_network import SimpleNet
 from agent.simple_network import DoubleInputNet
 from agent.random_process import OrnsteinUhlenbeckProcess
 from gym_torcs import TorcsEnv
+from agent.PriotrizedReplayBuffer import PrioirtyBuffer
 
 
 def train(device):
@@ -21,8 +22,13 @@ def train(device):
                 "lrvalue": 0.001,
                 "lrpolicy": 0.001,
                 "gamma": 0.985,
+<<<<<<< HEAD
                 "episodes": 100000,
                 "buffersize": 300000,
+=======
+                "episodes": 30000,
+                "buffersize": 2**13,#300000,
+>>>>>>> c293b2569d5f76e49b15c40d61ff62be8ef4191e
                 "tau": 0.01,
                 "batchsize": 32,
                 "start_sigma": 0.9,
@@ -38,16 +44,17 @@ def train(device):
     
     valuenet = DoubleInputNet(insize, outsize, 1)
     policynet = SimpleNet(insize, outsize, activation=torch.nn.functional.tanh)
-    agent = Ddpg(valuenet, policynet, buffersize=hyprm.buffersize)
+    
+    agent = Ddpg(valuenet, policynet, buffer=PrioirtyBuffer(hyprm.buffersize))#buffersize=hyprm.buffersize)
     agent.to(device)
     
     #load model
     print("loading model")
     try:
         valuenet.load_state_dict(torch.load('valuemodel.pth'))
-        #valuenet.eval()
+        valuenet.eval()
         policynet.load_state_dict(torch.load('policymodel.pth'))
-        #policynet.eval()
+        policynet.eval()
         print("model load successfully")
     except:
         print("cannot find the model")
@@ -66,7 +73,7 @@ def train(device):
             action.clamp_(-1, 1)
             action[1] = (action[1]+1)/2
             next_state, reward, done, _ = env.step(np.concatenate([action[:2], [-1]]))
-            agent.push(state, action, reward, next_state, done)
+            agent.push(state, action, reward, next_state, done,hyprm.gamma)
             epsisode_reward += reward
 
             if len(agent.buffer) > hyprm.batchsize:
@@ -91,4 +98,5 @@ def train(device):
                 torch.save(policynet.state_dict(), 'policymodel.pth')
 
 if __name__ == "__main__":
-    train("cuda")
+    train("cpu")
+    
