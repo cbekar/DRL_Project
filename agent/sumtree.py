@@ -63,7 +63,7 @@ class SumTree():
         while True:
             lc_idx = 2*parent_idx + 1       # Left Child index
             rc_idx = lc_idx + 1             # Right Child Index
-            if lc_idx >= len(self.tree):    # Reached bottom, end search
+            if lc_idx >= len(self.tree)-1:    # Reached bottom, end search
                 leaf_idx = parent_idx
                 break
             else:                           # Continue Downward Search
