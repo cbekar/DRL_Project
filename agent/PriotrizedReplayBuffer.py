@@ -128,12 +128,12 @@ class PrioirtyBuffer(BaseBuffer):
             sel_pri     = np.random.uniform(a,b) # Selected Priority condition
             leaf_idx    = self.sumtree.get(sel_pri)
             data_idx    = leaf_idx - self.capacity+1
-             if data_idx<len(self.queue):
-                priority    = self.sumtree.tree [leaf_idx]
-                prob        = priority/total_priority            
-                ISWeights[i, 0]     = np.power(prob/(min_prob+0.000001), -self.beta)            
-                b_tree_idx[i]       = leaf_idx   
-                b_data.append(self.queue[data_idx]) 
+            if data_idx<len(self.queue):
+               priority    = self.sumtree.tree [leaf_idx]
+               prob        = priority/total_priority            
+               ISWeights[i, 0]     = np.power(prob/(min_prob+0.000001), -self.beta)            
+               b_tree_idx[i]       = leaf_idx   
+               b_data.append(self.queue[data_idx]) 
         b_data = Transition(*zip(*b_data))              # is added Lastly 
         return b_tree_idx, b_data, ISWeights
         ###       END      ###
