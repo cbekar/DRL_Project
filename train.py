@@ -92,5 +92,5 @@ def train(device):
                 torch.save(policynet.state_dict(), 'policymodel.pth')
 
 if __name__ == "__main__":
-    train( "cpu" if torch.cuda.is_available() else 'cpu')
+    train( "cuda" if torch.cuda.is_available() else 'cpu')
     

@@ -146,7 +146,7 @@ class PriorityBuffer(BaseBuffer):
 #            print(p)
 #            clipped_error = self._clip_p(p)
             clipped_error = p
-            clipped_p = np.power(clipped_error, self.alpha)
+            clipped_p = torch.pow(clipped_error, self.alpha)
             self.sumtree.update(ti, clipped_p)
         ###         END      ###
         
