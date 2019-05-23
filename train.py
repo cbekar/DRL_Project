@@ -22,13 +22,8 @@ def train(device):
                 "lrvalue": 0.001,
                 "lrpolicy": 0.001,
                 "gamma": 0.985,
-<<<<<<< HEAD
-                "episodes": 100000,
-                "buffersize": 300000,
-=======
                 "episodes": 30000,
                 "buffersize": 2**13,#300000,
->>>>>>> c293b2569d5f76e49b15c40d61ff62be8ef4191e
                 "tau": 0.01,
                 "batchsize": 32,
                 "start_sigma": 0.9,
