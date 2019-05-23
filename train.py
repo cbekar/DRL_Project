@@ -61,8 +61,7 @@ def train(device):
         sigma = (hyprm.start_sigma-hyprm.end_sigma)*(max(0, 1-eps/hyprm.episodes)) + hyprm.end_sigma
         randomprocess = OrnsteinUhlenbeckProcess(hyprm.theta, sigma, outsize)
         for i in range(hyprm.maxlength):
-            torch_state = agent._totorch(state, torch.
-            float32).view(1, -1)
+            torch_state = agent._totorch(state, torch.float32).view(1, -1)
             action, value = agent.act(torch_state)
             action = train_indicator * randomprocess.noise() + action.to("cpu").squeeze()
             action.clamp_(-1, 1)
@@ -93,5 +92,5 @@ def train(device):
                 torch.save(policynet.state_dict(), 'policymodel.pth')
 
 if __name__ == "__main__":
-    train("cpu")
+    train( "cuda" if torch.cuda.is_available() else 'cpu')
     

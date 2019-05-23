@@ -6,6 +6,7 @@ import logging
 import random
 from copy import deepcopy
 from itertools import chain
+import numpy as np
 
 class Ddpg(torch.nn.Module):
 
@@ -48,15 +49,21 @@ class Ddpg(torch.nn.Module):
 
         return (action, value)
 
-    def td_error(self, gamma, batch, bool_loss = True):
+    def td_error(self, gamma, batch, ISWeight=None, bool_loss = True):
 
         with torch.no_grad():
 #            print(type(batch.next_state))
             target_action = self.targetpolicynet(batch.next_state)
             target_value = self.targetvaluenet(batch.next_state, target_action)
+
+        if isinstance(ISWeight,np.ndarray):
+            ISWeight = torch.FloatTensor(ISWeight,device = self.device)
+        else: 
+            ISWeight = 1.0
         
         current_value = self.valuenet(batch.state, batch.action)
-        next_value = target_value*(1 - batch.terminal)*gamma + batch.reward
+        next_value = (target_value*(1 - batch.terminal)*gamma + batch.reward)*ISWeight
+
         if bool_loss == True:
             td_loss = torch.nn.functional.smooth_l1_loss(current_value, next_value)
         else:
@@ -90,13 +97,11 @@ class Ddpg(torch.nn.Module):
                     g["lr"] = lr
 
         b_tree_idx, batch, ISWeights = self.buffer.sample(batchsize)
-#        print(1)
-#        print(batch)
         batch = self._batchtotorch(batch)
 
         # ----  Value Update --------
         self.opt_value.zero_grad()
-        loss_value = self.td_error(gamma, batch)
+        loss_value = self.td_error(gamma, batch,ISWeights)
         loss_value.backward()
         if gradclip:
             self.clip_grad(self.valuenet.parameters())
