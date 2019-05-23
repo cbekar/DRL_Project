@@ -1,6 +1,7 @@
 import torch
 from .replaybuffer import UniformBuffer
 from .replaybuffer import Transition
+from .PriotrizedReplayBuffer import PrioirtyBuffer
 import logging
 import random
 from copy import deepcopy
@@ -11,7 +12,7 @@ class Ddpg(torch.nn.Module):
     def __init__(self, valuenet,
                     policynet,
                     buffer=None,
-                    buffersize=10000,
+                    buffersize=2**13, #10000,
                     logger_level=logging.WARNING):
         super().__init__()
 
@@ -47,15 +48,19 @@ class Ddpg(torch.nn.Module):
 
         return (action, value)
 
-    def td_error(self, gamma, batch):
+    def td_error(self, gamma, batch, bool_loss = True):
 
         with torch.no_grad():
+#            print(type(batch.next_state))
             target_action = self.targetpolicynet(batch.next_state)
             target_value = self.targetvaluenet(batch.next_state, target_action)
         
         current_value = self.valuenet(batch.state, batch.action)
         next_value = target_value*(1 - batch.terminal)*gamma + batch.reward
-        td_loss = torch.nn.functional.smooth_l1_loss(current_value, next_value)
+        if bool_loss == True:
+            td_loss = torch.nn.functional.smooth_l1_loss(current_value, next_value)
+        else:
+            td_loss = torch.nn.functional.smooth_l1_loss(current_value, next_value,reduction='none').detach()
         return td_loss
 
     def policy_loss(self, batch):
@@ -84,7 +89,9 @@ class Ddpg(torch.nn.Module):
                 for g in opt.param_groups:
                     g["lr"] = lr
 
-        batch = self.buffer.sample(batchsize)
+        b_tree_idx, batch, ISWeights = self.buffer.sample(batchsize)
+#        print(1)
+#        print(batch)
         batch = self._batchtotorch(batch)
 
         # ----  Value Update --------
@@ -105,11 +112,19 @@ class Ddpg(torch.nn.Module):
 
         # ----- Target Update -----
         self.update_target(tau)
+        
+        # ----- Buffer Update -----
+        values = self.td_error(gamma, batch, bool_loss = False)
+        self.buffer.update_priority(b_tree_idx, values)
 
         return (loss_value.item(), -loss_policy.item()) 
 
-    def push(self, state, action, reward, next_state, terminal):
-        self.buffer.push(**dict(state=state,
+    def push(self, state, action, reward, next_state, terminal,gamma):
+#        print(2)
+        states = self._batchtotorch(Transition((state,),(action,), (reward,), (next_state,),(terminal,)))
+        delta = self.td_error(gamma, states)
+        delta = delta.detach()
+        self.buffer.push(delta,**dict(state=state,
                                 action=action,
                                 reward=reward,
                                 next_state=next_state,
@@ -117,10 +132,15 @@ class Ddpg(torch.nn.Module):
 
     def _batchtotorch(self, batch):
         state = self._totorch(batch.state, torch.float32)
+#        print(3)
         action = self._totorch(batch.action, torch.float32)
+#        print(4)
         next_state = self._totorch(batch.next_state, torch.float32)
+#        print(5)
         terminal = self._totorch(batch.terminal, torch.float32).view(-1, 1)
+#        print(6)
         reward = self._totorch(batch.reward, torch.float32).view(-1, 1)
+#        print(7)
         return Transition(state, action, reward, next_state, terminal)
 
     def _totorch(self, container, dtype):
