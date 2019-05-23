@@ -27,6 +27,7 @@ def train(device):
                 "tau": 0.01,
                 "batchsize": 32,
                 "start_sigma": 0.9,
+                "start_learn": 500,
                 "end_sigma": 0.1,
                 "theta": 0.15,
                 "maxlength": 1000,
@@ -70,7 +71,7 @@ def train(device):
             agent.push(state, action, reward, next_state, done,hyprm.gamma)
             epsisode_reward += reward
 
-            if len(agent.buffer) > hyprm.batchsize:
+            if len(agent.buffer) > hyprm.start_learn:#hyprm.batchsize:
                 value_loss, policy_loss = agent.update(hyprm.gamma, hyprm.batchsize, hyprm.tau, hyprm.lrvalue, hyprm.lrpolicy, hyprm.clipgrad)
                 if random.uniform(0, 1) < 0.01:
                     datalog["td error"].append(value_loss)
