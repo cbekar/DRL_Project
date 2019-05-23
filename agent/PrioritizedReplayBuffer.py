@@ -118,8 +118,12 @@ class PriorityBuffer(BaseBuffer):
             min_prob = np.min(self.sumtree.tree[-self.capacity:]) / total_priority   
         else:
             min_prob = np.min(self.sumtree.tree[self.capacity-1:self.capacity-1+counter]) / total_priority # for later calculate ISweight
-        for i in range(batch_size):
-            
+        
+        if min_prob == 0:
+            print('min_prob is equal to zero')
+            min_prob += 0.000001
+
+        for i in range(batch_size):            
             a,b = pri_seg*i, pri_seg*(i+1)
             sel_pri     = np.random.uniform(a,b) # Selected Priority condition
             leaf_idx    = self.sumtree.get(sel_pri)
