@@ -120,7 +120,7 @@ class Ddpg(torch.nn.Module):
         
         # ----- Buffer Update -----
         values = self.td_error(gamma, batch, bool_loss = False)
-        self.buffer.update_priority(b_tree_idx, values)
+        self.buffer.update_priority(b_tree_idx, torch.abs(values))
 
         return (loss_value.item(), -loss_policy.item()) 
 
