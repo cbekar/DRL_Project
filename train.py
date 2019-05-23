@@ -12,8 +12,8 @@ from gym_torcs import TorcsEnv
 
 
 def train(device):
-    #env = TorcsEnv(path="/usr/local/share/games/torcs/config/raceman/quickrace28.xml")
-    env = TorcsEnv(path="/usr/local/share/games/torcs/config/raceman/quickrace.xml")
+    env = TorcsEnv(path="/usr/local/share/games/torcs/config/raceman/quickrace28.xml")
+    #env = TorcsEnv(path="/usr/local/share/games/torcs/config/raceman/quickrace.xml")
     insize = env.observation_space.shape[0]
     outsize = env.action_space.shape[0]
     train_indicator = 1
@@ -21,7 +21,7 @@ def train(device):
                 "lrvalue": 0.001,
                 "lrpolicy": 0.001,
                 "gamma": 0.985,
-                "episodes": 30000,
+                "episodes": 100000,
                 "buffersize": 300000,
                 "tau": 0.01,
                 "batchsize": 32,
