@@ -118,15 +118,16 @@ class PriorityBuffer(BaseBuffer):
             min_prob = np.min(self.sumtree.tree[-self.capacity:]) / total_priority   
         else:
             min_prob = np.min(self.sumtree.tree[self.capacity-1:self.capacity-1+counter]) / total_priority # for later calculate ISweight
+        
         for i in range(batch_size):
-            
             a,b = pri_seg*i, pri_seg*(i+1)
+            #print("priority_segment %f, a %f, b %f", pri_seg, a, b)
             sel_pri     = np.random.uniform(a,b) # Selected Priority condition
             leaf_idx    = self.sumtree.get(sel_pri)
             data_idx    = leaf_idx - self.capacity+1
             priority    = self.sumtree.tree [leaf_idx]
-            prob        = priority/total_priority            
-            ISWeights[i, 0]     = np.power(prob/min_prob, -self.beta)            
+            prob        = priority/total_priority
+            ISWeights[i, 0]     = np.power(prob+0.0001/(min_prob+0.0001), -self.beta)
             b_tree_idx[i]       = leaf_idx   
             b_data.append(self.queue[data_idx]) 
         b_data = Transition(*zip(*b_data))              # is added Lastly 
