@@ -1,7 +1,7 @@
 import torch
 from .replaybuffer import UniformBuffer
 from .replaybuffer import Transition
-from .PriotrizedReplayBuffer import PrioirtyBuffer
+from .PrioritizedReplayBuffer import PrioirtyBuffer
 import logging
 import random
 from copy import deepcopy
