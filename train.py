@@ -4,6 +4,7 @@ import gym
 import random
 from collections import namedtuple
 from collections import defaultdict
+from collections import deque
 from agent.ddpg import Ddpg
 from agent.simple_network import SimpleNet
 from agent.simple_network import DoubleInputNet
@@ -19,7 +20,7 @@ def train(device):
     insize = env.observation_space.shape[0]
     outsize = env.action_space.shape[0]
     train_indicator = 1
-    stearhist = deque([0 0])
+    stear_hist = deque([0,0])
     hyperparams = {
                 "lrvalue": 0.001,
                 "lrpolicy": 0.001,
@@ -34,7 +35,9 @@ def train(device):
                 "theta": 0.15,
                 "maxlength": 1000,
                 "clipgrad": True,
-                "lowpass_stear": True
+                "lowpass_stear": True,
+                "alpha": 0.8 # Low pass filter constant
+
     }
     HyperParams = namedtuple("HyperParams", hyperparams.keys())
     hyprm = HyperParams(**hyperparams)
@@ -70,6 +73,10 @@ def train(device):
                 action, value = agent.act(torch_state)
                 action = train_indicator * randomprocess.noise() + action.to("cpu").squeeze()
                 action.clamp_(-1, 1)
+                if hyprm.lowpass_stear == True:
+                    action[0] = hyprm.alpha*action[0] + (1-hyprm.alpha)*stear_hist[-1]
+                    stear_hist.append(action[0])
+                    stear_hist.pop()
                 action[1] = (action[1]+1)/2
                 next_state, reward, done, _ = env.step(np.concatenate([action[:2], [-1]]))
                 agent.push(state, action, reward, next_state, done,hyprm.gamma)
