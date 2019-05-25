@@ -56,11 +56,11 @@ def train(device):
         print("cannot find the model")
 
     for eps in range(hyprm.episodes):
-            try:
+        try:
             state = env.reset(relaunch=eps%100 == 0, render=False, sampletrack=True)
             epsisode_reward = 0
             episode_value = 0
-            sigma = (hyprm.start_sigma-hyprm.end_sigma)*(max(0, 1-eps/hyprm.episodes)) + hyprm.end_sigma
+            sigma = (hyprm.start_sigma-hyprm.end_sigma)*(max(0, 1-(eps+26000)/hyprm.episodes)) + hyprm.end_sigma
             randomprocess = OrnsteinUhlenbeckProcess(hyprm.theta, sigma, outsize)
             for i in range(hyprm.maxlength):
                 torch_state = agent._totorch(state, torch.float32).view(1, -1)
