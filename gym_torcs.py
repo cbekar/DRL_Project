@@ -196,7 +196,7 @@ class TorcsEnv:
             except AttributeError:
                     pass
             self.tree.write(self.path)
-            time.sleep(0.5)
+            time.sleep(0.3)
 
         if self.initial_reset is not True:
             self.client.R.d['meta'] = True
@@ -234,11 +234,11 @@ class TorcsEnv:
     def reset_torcs(self, port=3101):
        #print("relaunch torcs")
         os.system('pkill torcs')
-        time.sleep(0.5)
+        time.sleep(0.3)
         os.system('torcs -T -nofuel -nodamage -nolaptime -p 3101 &')
-        time.sleep(0.5)
+        time.sleep(0.3)
         os.system('sh autostart.sh')
-        time.sleep(0.5)
+        time.sleep(0.3)
 
     def agent_to_torcs(self, u):
         torcs_action = {'steer': u[0]}
