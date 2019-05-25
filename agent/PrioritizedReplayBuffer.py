@@ -48,7 +48,7 @@ class BaseBuffer():
 
 
 
-class PrioirtyBuffer(BaseBuffer):
+class PriorityBuffer(BaseBuffer):
     """ Replay buffer that sample tranisitons
     according to their prioirties. Prioirty
     value is most commonly td error.
@@ -118,22 +118,27 @@ class PrioirtyBuffer(BaseBuffer):
             min_prob = np.min(self.sumtree.tree[-self.capacity:]) / total_priority   
         else:
             min_prob = np.min(self.sumtree.tree[self.capacity-1:self.capacity-1+counter]) / total_priority # for later calculate ISweight
-        
-        if min_prob == 0:
-            print('min_prob is equal to zero')
-            min_prob += 0.000001
-
-        for i in range(batch_size):            
+        i = 0
+        while len(b_data) <= batch_size-1:
+        #for i in range(batch_size):
             a,b = pri_seg*i, pri_seg*(i+1)
+            #print("priority_segment %f, a %f, b %f", pri_seg, a, b)
             sel_pri     = np.random.uniform(a,b) # Selected Priority condition
             leaf_idx    = self.sumtree.get(sel_pri)
             data_idx    = leaf_idx - self.capacity+1
-            if data_idx<len(self.queue):
+            # priority    = self.sumtree.tree [leaf_idx]
+            # prob        = priority/total_priority
+            # ISWeights[i, 0]     = np.power(prob+0.0001/(min_prob+0.0001), -self.beta)
+            # b_tree_idx[i]       = leaf_idx   
+            # b_data.append(self.queue[data_idx]) 
+            if data_idx<len(self.queue):               
                priority    = self.sumtree.tree [leaf_idx]
                prob        = priority/total_priority            
                ISWeights[i, 0]     = np.power(prob/(min_prob+0.000001), -self.beta)            
-               b_tree_idx[i]       = leaf_idx   
+               b_tree_idx[i]       = leaf_idx  
                b_data.append(self.queue[data_idx]) 
+               i +=1
+            # print(len(b_data))
         b_data = Transition(*zip(*b_data))              # is added Lastly 
         return b_tree_idx, b_data, ISWeights
         ###       END      ###
@@ -151,7 +156,7 @@ class PrioirtyBuffer(BaseBuffer):
 #            print(p)
 #            clipped_error = self._clip_p(p)
             clipped_error = p
-            clipped_p = np.power(clipped_error, self.alpha)
+            clipped_p = torch.pow(clipped_error, self.alpha)
             self.sumtree.update(ti, clipped_p)
         ###         END      ###
         
@@ -181,3 +186,4 @@ class PrioirtyBuffer(BaseBuffer):
             
         
         
+
