@@ -12,12 +12,14 @@ from gym_torcs import TorcsEnv
 from agent.PrioritizedReplayBuffer import PriorityBuffer
 
 
+
 def train(device):
     # env = TorcsEnv(path="/usr/local/share/games/torcs/config/raceman/quickrace28.xml")
     env = TorcsEnv(path="/usr/local/share/games/torcs/config/raceman/quickrace.xml")
     insize = env.observation_space.shape[0]
     outsize = env.action_space.shape[0]
     train_indicator = 1
+    stearhist = deque([0 0])
     hyperparams = {
                 "lrvalue": 0.001,
                 "lrpolicy": 0.001,
@@ -31,7 +33,8 @@ def train(device):
                 "end_sigma": 0.1,
                 "theta": 0.15,
                 "maxlength": 1000,
-                "clipgrad": True
+                "clipgrad": True,
+                "lowpass_stear": True
     }
     HyperParams = namedtuple("HyperParams", hyperparams.keys())
     hyprm = HyperParams(**hyperparams)
