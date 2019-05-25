@@ -94,7 +94,7 @@ def train(device):
                     torch.save(valuenet.state_dict(), 'valuemodel.pth')
                     torch.save(policynet.state_dict(), 'policymodel.pth')
         except: 
-            print(' an error occurred, but traininig will be tried to restart from the episode where is stacked')
+            print(' an error occurred, but traininig will continue from where it is stacked')
 
 if __name__ == "__main__":
     train( "cuda" if torch.cuda.is_available() else 'cpu')
