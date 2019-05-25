@@ -93,6 +93,8 @@ def train(device):
                     print("saving model")
                     torch.save(valuenet.state_dict(), 'valuemodel.pth')
                     torch.save(policynet.state_dict(), 'policymodel.pth')
+        except (KeyboardInterrupt, SystemExit):
+            raise
         except: 
             print(' an error occurred, but traininig will continue from where it is stacked')
 
