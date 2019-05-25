@@ -56,7 +56,7 @@ def train(device):
         print("cannot find the model")
 
     for eps in range(hyprm.episodes):
-            try:
+        try:
             state = env.reset(relaunch=eps%100 == 0, render=False, sampletrack=True)
             epsisode_reward = 0
             episode_value = 0
