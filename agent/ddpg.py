@@ -1,7 +1,7 @@
 import torch
 from .replaybuffer import UniformBuffer
 from .replaybuffer import Transition
-from .PrioritizedReplayBuffer import PrioirtyBuffer
+from .PrioritizedReplayBuffer import PriorityBuffer
 import logging
 import random
 from copy import deepcopy
@@ -22,7 +22,7 @@ class Ddpg(torch.nn.Module):
         self.targetvaluenet = deepcopy(valuenet)
         self.targetpolicynet = deepcopy(policynet)
         
-        self.buffer = buffer or UniformBuffer(buffersize, logger_level=logger_level)
+        self.buffer = buffer #or UniformBuffer(buffersize, logger_level=logger_level)
 
         self.logger = logging.getLogger(__name__ + __class__.__name__)
         self.logger.setLevel(logger_level)
@@ -57,7 +57,7 @@ class Ddpg(torch.nn.Module):
             target_value = self.targetvaluenet(batch.next_state, target_action)
 
         if isinstance(ISWeight,np.ndarray):
-            ISWeight = torch.FloatTensor(ISWeight,device = self.device)
+            ISWeight = torch.from_numpy(ISWeight).float().to(self.device)
         else: 
             ISWeight = 1.0
         
