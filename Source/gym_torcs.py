@@ -144,7 +144,7 @@ class TorcsEnv:
                     reward -= 10
                     # print("--- No progress restart : reward: {},x:{},angle:{},trackPos:{}".format(reward,sp,obs['angle'],obs['trackPos']))
                     # print(self.time_step)
-                    pisode_terminate = True
+                    episode_terminate = True
                     info["no progress"] = True
                     # client.R.d['meta'] = True
         
@@ -236,7 +236,7 @@ class TorcsEnv:
         print("relaunch torcs")
         os.system('pkill torcs')
         time.sleep(0.5)
-        os.system('torcs -T -nofuel -nodamage -nolaptime -p 3101 &')
+        os.system('torcs -nofuel -nodamage -nolaptime -p 3101 &')
         time.sleep(0.5)
         os.system('sh autostart.sh')
         time.sleep(0.5)
