@@ -22,7 +22,6 @@ def train(device):
     outsize = env.action_space.shape[0]
     train_indicator = 1
     stear_hist = deque([0,0])
-    best_reward = -1000000  
     hyperparams = {
                 "lrvalue": 0.001,
                 "lrpolicy": 0.001,
@@ -65,10 +64,10 @@ def train(device):
 
     for eps in range(hyprm.episodes):
         try:
-            state = env.reset(relaunch=eps%100 == 0, render=True, sampletrack=True)
+            state = env.reset(relaunch=eps%100 == 0, render=False, sampletrack=True)
             epsisode_reward = 0
             episode_value = 0
-            sigma = (hyprm.start_sigma-hyprm.end_sigma)*(max(0, 1-(eps+20000)/hyprm.episodes)) + hyprm.end_sigma
+            sigma = (hyprm.start_sigma-hyprm.end_sigma)*(max(0, 1-(eps+26000)/hyprm.episodes)) + hyprm.end_sigma
             randomprocess = OrnsteinUhlenbeckProcess(hyprm.theta, sigma, outsize)
             for i in range(hyprm.maxlength):
                 torch_state = agent._totorch(state, torch.float32).view(1, -1)
@@ -106,16 +105,10 @@ def train(device):
                         json.dump(datalog,f)
                     torch.save(valuenet.state_dict(), 'valuemodel.pth')
                     torch.save(policynet.state_dict(), 'policymodel.pth')
-            
-            if (train_indicator) and datalog["total reward"][-1] > best_reward: 
-                best_reward = datalog["total reward"][-1]                   
-                print("saving model")
-                torch.save(valuenet.state_dict(), 'valuemodel_best.pth')
-                torch.save(policynet.state_dict(), 'policymodel_best.pth')
         except (KeyboardInterrupt, SystemExit):
             raise
         except:
-            print(' An Error was occured but iteration will continue where it is left')
+            print(' An Error was occuredbut iteration will continue whe it is left')
 
 if __name__ == "__main__":
     

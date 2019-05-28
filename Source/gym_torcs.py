@@ -130,7 +130,7 @@ class TorcsEnv:
         # direction-dependent positive reward
         track = np.array(obs['track'])
         sp = np.array(obs['speedX'])/200
-        progress = sp*np.cos(obs['angle'])*2
+        progress = sp*np.cos(obs['angle'])
         reward = progress - sp*np.sin(obs["angle"]) - sp * np.abs(obs['trackPos'])/5
 
         # collision detection
@@ -144,22 +144,14 @@ class TorcsEnv:
                     reward -= 10
                     # print("--- No progress restart : reward: {},x:{},angle:{},trackPos:{}".format(reward,sp,obs['angle'],obs['trackPos']))
                     # print(self.time_step)
-                    pisode_terminate = True
+                    episode_terminate = True
                     info["no progress"] = True
                     # client.R.d['meta'] = True
         
         if (abs(track.any()) > 1 or abs(obs['trackPos']) > 1):  # If the car is out of track
-            reward -= 1         
-            # if self.time_step >  20 :
-            #     episode_terminate = True
-                #client.R.d['meta'] = True
-
-        # Avoiding Steer fluctioation
-        reward -= abs(action_torcs["steer"])*0.000001
-        
-        # Adding position as reward
-        # reward += progress*200*0.05
-
+            reward = -20
+            episode_terminate = True
+            #client.R.d['meta'] = True
 
         if np.cos(obs['angle']) < 0:  # Episode is terminated if the agent runs backward
             if self.time_step >  20 :
@@ -244,7 +236,7 @@ class TorcsEnv:
         print("relaunch torcs")
         os.system('pkill torcs')
         time.sleep(0.5)
-        os.system('torcs -T -nofuel -nodamage -nolaptime -p 3101 &')
+        os.system('torcs -nofuel -nodamage -nolaptime -p 3101 &')
         time.sleep(0.5)
         os.system('sh autostart.sh')
         time.sleep(0.5)
