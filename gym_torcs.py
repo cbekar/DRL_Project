@@ -130,7 +130,7 @@ class TorcsEnv:
         # direction-dependent positive reward
         track = np.array(obs['track'])
         sp = np.array(obs['speedX'])/200
-        progress = sp*np.cos(obs['angle'])
+        progress = sp*np.cos(obs['angle'])*2
         reward = progress - sp*np.sin(obs["angle"]) - sp * np.abs(obs['trackPos'])/5
 
         # collision detection
@@ -155,7 +155,7 @@ class TorcsEnv:
                 #client.R.d['meta'] = True
 
         # Avoiding Steer fluctioation
-        reward -= abs(action_torcs["steer"])*0.01
+        reward -= abs(action_torcs["steer"])*0.000001
         
         # Adding position as reward
         # reward += progress*200*0.05

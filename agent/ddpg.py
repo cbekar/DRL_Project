@@ -101,7 +101,7 @@ class Ddpg(torch.nn.Module):
 
         # ----  Value Update --------
         self.opt_value.zero_grad()
-        loss_value = self.td_error(gamma, batch,ISWeights)
+        loss_value = self.td_error(gamma, batch, ISWeights)
         loss_value.backward()
         if gradclip:
             self.clip_grad(self.valuenet.parameters())
@@ -125,10 +125,8 @@ class Ddpg(torch.nn.Module):
         return (loss_value.item(), -loss_policy.item()) 
 
     def push(self, state, action, reward, next_state, terminal,gamma):
-#        print(2)
         states = self._batchtotorch(Transition((state,),(action,), (reward,), (next_state,),(terminal,)))
-        delta = self.td_error(gamma, states)
-        delta = delta.detach()
+        delta = self.td_error(gamma, states, bool_loss = False)
         self.buffer.push(delta,**dict(state=state,
                                 action=action,
                                 reward=reward,
