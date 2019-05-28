@@ -149,9 +149,17 @@ class TorcsEnv:
                     # client.R.d['meta'] = True
         
         if (abs(track.any()) > 1 or abs(obs['trackPos']) > 1):  # If the car is out of track
-            reward = -20
-            episode_terminate = True
-            #client.R.d['meta'] = True
+            reward -= 1         
+            # if self.time_step >  20 :
+            #     episode_terminate = True
+                #client.R.d['meta'] = True
+
+        # Avoiding Steer fluctioation
+        reward -= abs(action_torcs["steer"])*0.01
+        
+        # Adding position as reward
+        # reward += progress*200*0.05
+
 
         if np.cos(obs['angle']) < 0:  # Episode is terminated if the agent runs backward
             if self.time_step >  20 :
