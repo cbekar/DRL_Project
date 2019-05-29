@@ -130,13 +130,13 @@ class TorcsEnv:
         # direction-dependent positive reward
         track = np.array(obs['track'])
         sp = np.array(obs['speedX'])/200
-        progress = sp*np.cos(obs['angle'])*2
+        progress = sp*np.cos(obs['angle'])
         reward = progress - sp*np.sin(obs["angle"]) - sp * np.abs(obs['trackPos'])/5
 
         # collision detection
         if obs['damage'] - obs_pre['damage'] > 0:
             info["collision"] = True
-            reward = -1
+            reward += -1
 
         if self.terminal_judge_start < self.time_step: # Episode terminates if the progress of agent is small
            if abs(progress) < self.termination_limit_progress:
@@ -144,33 +144,35 @@ class TorcsEnv:
                     reward -= 10
                     # print("--- No progress restart : reward: {},x:{},angle:{},trackPos:{}".format(reward,sp,obs['angle'],obs['trackPos']))
                     # print(self.time_step)
-                    pisode_terminate = True
+                    episode_terminate = True
                     info["no progress"] = True
                     # client.R.d['meta'] = True
+                    return self.get_obs(), reward, episode_terminate, info
         
         if (abs(track.any()) > 1 or abs(obs['trackPos']) > 1):  # If the car is out of track
-            reward -= 1         
+            reward -= 1 * 0.001        
             # if self.time_step >  20 :
             #     episode_terminate = True
                 #client.R.d['meta'] = True
 
         # Avoiding Steer fluctioation
-        reward -= abs(action_torcs["steer"])*0.000001
-        
+        reward -= abs(action_torcs["steer"])*0.001
+        reward += 1/obs["racePos"]*0.001
         # Adding position as reward
         # reward += progress*200*0.05
 
-
+        info["place"] = int(obs["racePos"])
         if np.cos(obs['angle']) < 0:  # Episode is terminated if the agent runs backward
             if self.time_step >  20 :
-                reward -= 10
+                reward = -10
                 # print("--- backward restart : reward: {},x:{},angle:{},trackPos:{}".format( reward, sp, obs['angle'], obs['trackPos']))
                 # print(self.time_step)
                 episode_terminate = True
                 info["moving back"] = True
                 # client.R.d['meta'] = True
+                return self.get_obs(), reward, episode_terminate, info
 
-        info["place"] = int(obs["racePos"])
+        # info["place"] = int(obs["racePos"])
         if episode_terminate is True: # Send a reset signal
             reward += (1. / obs["racePos"])*20 # If terminated and first place
             self.initial_run = False
